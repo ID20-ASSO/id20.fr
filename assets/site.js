@@ -57,7 +57,7 @@ function buildHeader(){
     return '<a class="navlink" href="'+n.href+'"'+active+'>'+esc(n.label)+'</a>';
   }).join('');
   return '<div class="wrap">'+
-    '<a class="brand" href="index.html">'+D20_LOGO+'<div class="t"><b>ID20</b><span>Jeu de rôle · Angers</span></div></a>'+
+    '<a class="brand" href="index.html"><img src="assets/logo-id20.png" alt="ID20" style="height:46px;width:auto;display:block"><div class="t"><b>ID20</b><span>Jeu de rôle · Angers</span></div></a>'+
     '<nav class="nav">'+links+'<div id="account-slot"></div></nav>'+
   '</div>';
 }
