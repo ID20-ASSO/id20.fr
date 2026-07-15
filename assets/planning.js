@@ -48,6 +48,14 @@ const MONTHS=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.
 const DOW=["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"];
 function isFreeMarker(v){return norm(v)===norm(CONFIG.FREE_MARKER) || norm(v)===""; }
 function isNA(v){return norm(v)==="[n/a]"; }
+// Heure de début selon le lieu (depuis content.js), insensible à la casse/accents.
+function heureFor(lieu){
+  const inf = window.CONTENT && CONTENT.infos;
+  if(inf && inf.heures){
+    for(const k in inf.heures){ if(norm(k)===norm(lieu)) return inf.heures[k]; }
+  }
+  return (inf && inf.heureDefaut) || "";
+}
 function freeCount(){let c=0; sessions.forEach(s=>s.tables.forEach(t=>{if(t.free)c++;})); return c;}
 
 function banner(kind,html){
@@ -133,7 +141,7 @@ function applyFutureFilter(){
 async function loadPlanning(){
   if(!CONFIG.PLANNING_CSV_URL){
     sessions = DEMO_SESSIONS.slice(); applyFutureFilter();
-    banner('info','<b>Aperçu hors-ligne</b> — instantané des soirées à venir. Renseignez <code>PLANNING_CSV_URL</code> dans <code>assets/config.js</code> pour la lecture en direct du Sheet.');
+    banner('info','<b>Aperçu hors-ligne</b>, instantané des soirées à venir. Renseignez <code>PLANNING_CSV_URL</code> dans <code>assets/config.js</code> pour la lecture en direct du Sheet.');
     render(); return;
   }
   try{
@@ -150,7 +158,7 @@ async function loadPlanning(){
   }catch(e){
     console.error("Lecture du planning impossible :",e);
     sessions = DEMO_SESSIONS.slice(); applyFutureFilter();
-    banner('err','Impossible de lire le planning en ligne pour l\'instant — affichage d\'un exemple. (Vérifiez l\'URL de publication CSV.)');
+    banner('err','Impossible de lire le planning en ligne pour l\'instant, affichage d\'un exemple. (Vérifiez l\'URL de publication CSV.)');
     render();
   }
 }
@@ -176,7 +184,7 @@ function tileHTML(si,ti){
       '<div class="sys">'+esc(t.sys)+'</div><div class="mj"><span class="avatar">'+initials(t.mj)+'</span>'+esc(t.mj)+'</div>'+
       (t.notes?'<div class="note">'+esc(t.notes)+'</div>':'')+
       (mine
-        ? '<span class="tag mine">'+icon('star')+'Votre table</span><button class="btn free-out" onclick="onRelease('+si+','+ti+')">Je ne peux plus venir — libérer</button>'
+        ? '<span class="tag mine">'+icon('star')+'Votre table</span><button class="btn free-out" onclick="onRelease('+si+','+ti+')">Je ne peux plus venir, libérer ma table</button>'
         : '<span class="tag taken">'+icon('check')+'Réservée</span>')+
       '</div>';
 }
@@ -196,13 +204,13 @@ function render(){
     el.innerHTML=
       '<div class="s-head">'+
         '<div class="date"><div class="dow">'+dStr.dow+'</div><span class="day">'+dStr.day+'</span><div class="mon">'+dStr.mon+'</div></div>'+
-        '<div class="s-meta"><b>Soirée JDR</b><div class="lieu">'+icon('pin')+esc(s.lieu||'Lieu à confirmer')+' · '+esc((window.CONTENT&&CONTENT.infos&&CONTENT.infos.heure)||'dès 20h')+'</div></div>'+
+        '<div class="s-meta"><b>Soirée JDR</b><div class="lieu">'+icon('pin')+esc(s.lieu||'Lieu à confirmer')+(s.lieu&&heureFor(s.lieu)?' · '+esc(heureFor(s.lieu)):'')+'</div></div>'+
         '<span class="s-free '+(free?'has':'none')+'">'+(free? free+' table'+(free>1?'s':'')+' libre'+(free>1?'s':'') : 'Complet')+'</span>'+
       '</div>'+
       '<div class="tables">'+s.tables.map((_,ti)=>tileHTML(si,ti)).join('')+'</div>';
     board.appendChild(el);
   });
-  if(!shown){ board.innerHTML='<p style="color:var(--text-muted);padding:20px 0">Aucun créneau libre pour l\'instant — revenez bientôt&nbsp;!</p>'; }
+  if(!shown){ board.innerHTML='<p style="color:var(--text-muted);padding:20px 0">Aucun créneau libre pour l\'instant, revenez bientôt&nbsp;!</p>'; }
 }
 function setFilter(f){
   filter=f;
@@ -243,7 +251,7 @@ async function confirmTake(){
       '<h3 style="margin-top:14px">Table réservée</h3>'+
       '<p>'+esc(sys)+' · Table '+(target.ti+1)+' ('+t.type+')<br>le '+dStr+' à '+esc(s.lieu||'lieu à confirmer')+'</p>'+
       '<div class="discord"><div class="dh"><span class="d"></span>#planning-jdr · à l\'instant</div>'+
-        '<div class="dm">🎲 <b>'+esc(session.name)+'</b> ouvre une table : <b>'+esc(sys)+'</b> le '+dStr+' ('+esc(s.lieu||'lieu à confirmer')+'). Il reste <b>'+leftLbl+'</b> — à vous de jouer&nbsp;!</div></div>'+
+        '<div class="dm">🎲 <b>'+esc(session.name)+'</b> ouvre une table : <b>'+esc(sys)+'</b> le '+dStr+' ('+esc(s.lieu||'lieu à confirmer')+'). Il reste <b>'+leftLbl+'</b>, à vous de jouer&nbsp;!</div></div>'+
       '<div class="m-actions" style="justify-content:center;margin-top:20px"><button class="btn" onclick="closeModal()">Voir le planning</button></div></div>');
   }catch(e){
     showModal('<div class="m-head"><h3>Oups…</h3><p>Ce créneau vient peut-être d\'être pris par quelqu\'un d\'autre, ou votre session a expiré.</p></div>'+

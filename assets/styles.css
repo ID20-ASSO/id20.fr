@@ -53,6 +53,7 @@ img{max-width:100%}
 .btn.outline{background:none; border-color:var(--border-default); color:var(--ra-navy)} .btn.outline:hover{background:var(--ra-navy-050)}
 .btn.ghost{background:none; color:var(--text-muted)} .btn.ghost:hover{background:var(--ra-cream); color:var(--ra-navy)}
 .btn.arrow::after{content:"→"; font-weight:600}
+.btn svg{width:16px; height:16px; flex:none}
 .btn:disabled{opacity:.5; cursor:not-allowed}
 .btn:focus-visible{outline:2px solid var(--ra-orange); outline-offset:2px}
 
@@ -128,11 +129,11 @@ img{max-width:100%}
 .lieu-card h3{font-size:26px; color:#fff; margin:6px 0 0}
 .lieu-card p{font-size:16px; line-height:1.6; color:var(--ra-navy-200); margin:0}
 
-.service{display:flex; gap:14px; padding:16px 0; border-bottom:1px solid var(--border-subtle)}
+.service{display:flex; gap:14px; padding:16px 0; border-bottom:1px solid var(--border-subtle); align-items:flex-start; text-align:left}
 .service:last-child{border-bottom:0}
 .service .ico{width:34px;height:34px;border-radius:9px;background:var(--ra-navy-100);color:var(--ra-navy);display:inline-flex;align-items:center;justify-content:center;flex:none}
 .service b{display:block; font-size:16px; color:var(--text-heading)}
-.service span{font-size:14.5px; color:var(--text-body)}
+.service span{display:block; font-size:14.5px; color:var(--text-body); margin-top:2px}
 
 /* ---------- contact / footer ---------- */
 .contact{background:var(--ra-navy)}

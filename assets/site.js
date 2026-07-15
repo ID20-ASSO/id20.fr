@@ -18,8 +18,22 @@ const SITE_NAV = [
   { label: "Planning",      href: "planning.html" },
 ];
 
-/* ---- État de session adhérent (en mémoire seulement) ---- */
+/* ---- État de session adhérent (mémorisé dans le navigateur) ---- */
 let session = { token:null, email:null, name:null };
+const SESSION_KEY = "id20_session";
+const SESSION_TTL_MS = 4 * 60 * 60 * 1000;   // 4 h, aligné sur l'expiration du jeton backend
+function saveSession(){
+  try{ localStorage.setItem(SESSION_KEY, JSON.stringify({token:session.token, email:session.email, name:session.name, exp:Date.now()+SESSION_TTL_MS})); }catch(e){}
+}
+function clearSession(){ try{ localStorage.removeItem(SESSION_KEY); }catch(e){} }
+function restoreSession(){
+  try{
+    const raw=localStorage.getItem(SESSION_KEY); if(!raw) return;
+    const s=JSON.parse(raw);
+    if(s && s.token && s.exp && s.exp>Date.now()) session={token:s.token, email:s.email, name:s.name};
+    else clearSession();
+  }catch(e){}
+}
 
 /* ================= utilitaires partagés ================= */
 function norm(s){return (s||"").toString().trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");}
@@ -38,9 +52,8 @@ function icon(name){
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+I[name]+'</svg>';
 }
 
-/* Logo dé 20 (SVG autonome — pas de fichier image requis).
-   Pour utiliser ton vrai logo : remplace ce SVG par
-   <img src="assets/logo-id20.png" alt="ID20" class="d20"> dans buildHeader/hero. */
+/* Logo dé 20 (SVG autonome — plus utilisé dans l'en-tête, gardé comme secours).
+   L'en-tête et le hero utilisent maintenant assets/logo-id20.png. */
 const D20_LOGO = '<svg class="d20" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" aria-hidden="true">'+
   '<polygon points="50,5 89,27 89,73 50,95 11,73 11,27"/>'+
   '<polygon points="50,22 73,67 27,67" fill="currentColor" stroke="none"/>'+
@@ -63,7 +76,7 @@ function buildHeader(){
 }
 function buildFooter(){
   return '<div class="wrap"><span class="dot"></span>'+
-    '<span>ID20 — Association de jeu de rôle sur table, Angers · Association loi 1901</span>'+
+    '<span>ID20, association de jeu de rôle sur table à Angers · Association loi 1901</span>'+
     '<nav><a href="planning.html">Planning</a><a href="index.html#association">L\'association</a><a href="index.html#contact">Contact</a></nav></div>';
 }
 
@@ -94,7 +107,7 @@ function renderAccount(){
   }
 }
 function afterAuthChange(){ renderAccount(); if(typeof render==='function') render(); }
-function logout(){ session={token:null,email:null,name:null}; afterAuthChange(); }
+function logout(){ session={token:null,email:null,name:null}; clearSession(); afterAuthChange(); }
 
 function openLogin(){
   if(!CONFIG.BACKEND_URL){
@@ -123,7 +136,7 @@ async function requestCode(){
   showModal('<div class="center"><div class="spin"></div><p>Envoi du code…</p></div>');
   try{ await apiPost({action:'requestCode',email}); }catch(e){ /* réponse neutre quoi qu'il arrive */ }
   // Réponse TOUJOURS neutre (on ne révèle pas si l'e-mail est adhérent).
-  showModal('<div class="m-head"><h3>Vérifiez vos e-mails</h3><p>Si cet e-mail est adhérent, un code à 6 chiffres vient d\'être envoyé. Il expire dans 10 minutes.</p></div>'+
+  showModal('<div class="m-head"><h3>Vérifiez vos e-mails</h3><p>Si cet e-mail est adhérent, un code à 6 chiffres vient d\'être envoyé. Il peut mettre quelques minutes à arriver (pensez aux spams) et reste valable 15 minutes.</p></div>'+
     '<div class="m-body">'+
       '<div class="field"><label for="lg-code">Code reçu par e-mail</label>'+
         '<input id="lg-code" class="otp-input" inputmode="numeric" maxlength="6" placeholder="••••••">'+
@@ -144,7 +157,7 @@ async function verifyCode(){
     const r=await apiPost({action:'verifyCode',email,code});
     if(r && r.ok && r.token){
       session={token:r.token,email,name:r.name||email.split('@')[0]};
-      afterAuthChange(); closeModal(); return;
+      saveSession(); afterAuthChange(); closeModal(); return;
     }
     cerr.textContent=(r&&r.error)||"Code incorrect ou expiré."; cerr.classList.add('show');
   }catch(e){ cerr.textContent="Erreur réseau, réessayez."; cerr.classList.add('show'); }
@@ -175,7 +188,11 @@ function bindContent(){
   if(!window.CONTENT) return;
   document.querySelectorAll('[data-txt]').forEach(el=>{ const v=cget(el.dataset.txt); if(v!=null && v!=="") el.textContent=v; });
   document.querySelectorAll('[data-html]').forEach(el=>{ const v=cget(el.dataset.html); if(v!=null && v!=="") el.innerHTML=v; });
-  document.querySelectorAll('[data-href]').forEach(el=>{ const v=cget(el.dataset.href); if(v) el.setAttribute('href',v); });
+  document.querySelectorAll('[data-href]').forEach(el=>{
+    const v=cget(el.dataset.href);
+    if(v){ el.setAttribute('href',v); el.style.display=''; if(/^https?:/i.test(v)){ el.setAttribute('target','_blank'); el.setAttribute('rel','noopener'); } }
+    else if(el.hasAttribute('data-optional')){ el.style.display='none'; }   // pas d'URL → on masque le bouton optionnel
+  });
   document.querySelectorAll('[data-mailto]').forEach(el=>{ const v=cget(el.dataset.mailto); if(v) el.setAttribute('href','mailto:'+v); });
 }
 
@@ -184,6 +201,7 @@ function initSite(){
   const h=document.getElementById('site-header'); if(h){ h.className='topbar'; h.innerHTML=buildHeader(); }
   const f=document.getElementById('site-footer'); if(f){ f.className='foot'; f.innerHTML=buildFooter(); }
   ensureOverlay();
+  restoreSession();
   renderAccount();
   bindContent();
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
