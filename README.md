@@ -25,11 +25,12 @@ vit dans l'Apps Script (non commité dans ce dépôt public).
 
 | Fichier | Rôle |
 |---|---|
-| `index.html` | Page d'accueil : contenu (présentation + planning). Légère ; charte et logique sont dans `assets/`. |
+| `index.html` | **Accueil** : présentation de l'asso (hero, tables, lieux, adhésion, contact). |
+| `planning.html` | **Planning** : consultation des soirées + réservation/libération (connexion adhérent). |
 | `assets/config.js` | **Le seul fichier à régler** : URLs (CSV, backend), colonnes du Sheet, marqueur de créneau libre. |
-| `assets/styles.css` | Charte graphique partagée par toutes les pages (couleurs, polices, composants). |
+| `assets/styles.css` | Charte graphique partagée (thème navy + or, composants). |
 | `assets/site.js` | En-tête + pied de page + menu (`SITE_NAV`) + connexion adhérent, partagés et injectés sur chaque page. |
-| `assets/planning.js` | Logique du planning (lecture CSV, rendu, prise/libération de table). Chargée seulement sur les pages avec planning. |
+| `assets/planning.js` | Logique du planning (lecture CSV, rendu, prise/libération). Chargée seulement sur `planning.html`. |
 | `.nojekyll` | Désactive Jekyll sur GitHub Pages (sinon les dossiers `_*` sont ignorés). |
 | `CNAME` | Créé automatiquement par GitHub quand on renseigne le domaine `id20.fr`. |
 | `README.md` / `CHECKLIST-HUMAINE.md` | Ce fichier / étapes manuelles (DNS, Pages, Discord, Apps Script, Sheets). |

@@ -1,0 +1,48 @@
+/* ================================================================
+   ID20 — CONFIGURATION (le seul fichier à régler)
+   Chargé sur toutes les pages, avant site.js et planning.js.
+   ================================================================ */
+window.CONFIG = {
+  // URL de publication CSV du Sheet « Planning »
+  // (Google Sheets → Fichier → Partager → Publier sur le web → format CSV).
+  // Laisser "" tant que le Sheet n'est pas publié : la page tourne en mode démo.
+  PLANNING_CSV_URL: "",
+
+  // URL de la Web App Apps Script (backend OTP + inscription).
+  // Laisser "" tant que le backend n'est pas déployé : l'inscription affiche
+  // « bientôt disponible » et le planning reste consultable.
+  BACKEND_URL: "",
+
+  // N'afficher que les soirées à venir (>= aujourd'hui) ?
+  FUTURE_ONLY: true,
+
+  // Structure du Sheet « Planning » (adaptée au VRAI fichier de l'asso).
+  // Le fichier a :
+  //   - 2 lignes de titre en haut (ignorées) ;
+  //   - un en-tête sur 2 lignes (groupe « Table 1/2/3… » + sous-ligne « Système / Masterisé par / Notes ») ;
+  //   - une ligne par soirée ensuite.
+  // Comme « Système / Masterisé par / Notes » se répètent, on repère les colonnes
+  // par POSITION (index, A=0, B=1, …), pas par nom.
+  COLS: {
+    HEADER_CONTAINS: ["date", "lieu"], // sert à localiser la ligne d'en-tête (le reste au-dessus est ignoré)
+    DATA_OFFSET: 2,                    // l'en-tête tient sur 2 lignes → données = en-tête + 2
+    REQUIRE_DATE: true,                // on ignore les lignes sans date valide (écarte l'historique et les brouillons)
+    date: 0,                           // colonne A
+    lieu: 1,                           // colonne B
+    tables: [
+      { type: "Initiation",       locked: true,  sys: 2, mj: 3,  notes: 4  }, // C/D/E
+      { type: "Découverte",       locked: false, sys: 5, mj: 6,  notes: 7  }, // F/G/H
+      { type: "Adventure League", locked: false, sys: 8, mj: 9,  notes: 10 }, // I/J/K
+      // Table 4 (« ??? ») + colonne « Support » : secondaires (cf. cahier des charges §5.2).
+      // Décommenter pour l'afficher comme 4e table ouverte :
+      // { type: "Table 4", locked: false, sys: 11, mj: 12, notes: 13 },     // L/M/N
+    ]
+  },
+
+  // Marqueur « créneau libre » dans une colonne « Masterisé par » (cellule vide = libre aussi).
+  FREE_MARKER: "[En attente]",
+
+  // Liste des systèmes proposés dans le formulaire d'inscription
+  // (extraite de l'onglet DATA du Sheet ; à terme on pourra la lire dynamiquement).
+  SYSTEMS: ["D&D 5E","Tales from the Loop","Mörk Borg","Cy_Borg","Knight","NEXUS","Daggerheart","DCC","Eat the Reich","Mothership","Fallout","L'appel de Cthulhu","Les Légendaires","Tiny D6","Dédales","Donjons & Chatons","Warhammer 40K","TGCQ","Dies Irae","Zcorps","Ragnarok","Sins of the Father","FF XIV"],
+};

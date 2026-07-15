@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ID20 — Planning des soirées JDR</title>
+<meta name="description" content="Planning des soirées JDR d'ID20 à Angers. Consultez les tables à venir et réservez un créneau libre en tant que MJ.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<header id="site-header"></header>
+
+<!-- ============ HERO PLANNING ============ -->
+<section class="plan-hero">
+  <div class="wrap">
+    <div class="intro">
+      <span class="eyebrow">Planning des soirées</span>
+      <h1>Réservez votre table</h1>
+      <p>Le bureau assure toujours l'<b>initiation</b>. Les tables <b>Découverte</b> et <b>Adventure League</b>, c'est à vous de les faire vivre — un créneau libre vous tente&nbsp;? Prenez-le.</p>
+    </div>
+    <div class="tally" aria-live="polite">
+      <div class="num" id="tally-num">—</div>
+      <div class="lab">tables à pourvoir<br>d'ici la rentrée</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTROLS ============ -->
+<section class="controls">
+  <div class="wrap">
+    <div class="filter" role="group" aria-label="Filtrer les soirées">
+      <button id="f-all" aria-pressed="true" onclick="setFilter('all')">Toutes les soirées</button>
+      <button id="f-free" aria-pressed="false" onclick="setFilter('free')">Avec créneau libre</button>
+    </div>
+    <div class="legend">
+      <span><i class="key free"></i> Libre</span>
+      <span><i class="key taken"></i> Réservée</span>
+      <span><i class="key lock"></i> Bureau</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BOARD ============ -->
+<main class="plan-main">
+  <div class="wrap">
+    <div class="banner" id="banner"></div>
+    <div class="board" id="board">
+      <div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+    <div class="plan-note">
+      <span class="dot"></span>
+      Un système ou une date manquent&nbsp;? <a href="index.html#contact">Faites une demande au bureau</a> — Pierre ou Ro' l'ajouteront.
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<!-- Scripts partagés : config → site → planning -->
+<script src="assets/config.js"></script>
+<script src="assets/site.js"></script>
+<script src="assets/planning.js"></script>
+</body>
+</html>
