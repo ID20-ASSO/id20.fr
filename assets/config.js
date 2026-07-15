@@ -6,12 +6,12 @@ window.CONFIG = {
   // URL de publication CSV du Sheet « Planning »
   // (Google Sheets → Fichier → Partager → Publier sur le web → format CSV).
   // Laisser "" tant que le Sheet n'est pas publié : la page tourne en mode démo.
-  PLANNING_CSV_URL: "",
+  PLANNING_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvdAjD7u56rpryAhQxN92TkVF9UjGsD8ePZA3f9vqft4Qq_pAQ0ts5oXo_BOAVKROs1tb6MpdqgNFm/pub?gid=0&single=true&output=csv",
 
   // URL de la Web App Apps Script (backend OTP + inscription).
   // Laisser "" tant que le backend n'est pas déployé : l'inscription affiche
   // « bientôt disponible » et le planning reste consultable.
-  BACKEND_URL: "",
+  BACKEND_URL: "https://script.google.com/macros/s/AKfycbzMDYcia34y8JMNGrCCTtfd73bzADGMKJqFt8tECTmpxttV26CdMyZqWp609Tli1Vik/exec",
 
   // N'afficher que les soirées à venir (>= aujourd'hui) ?
   FUTURE_ONLY: true,
