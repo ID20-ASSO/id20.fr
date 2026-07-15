@@ -196,7 +196,7 @@ function render(){
     el.innerHTML=
       '<div class="s-head">'+
         '<div class="date"><div class="dow">'+dStr.dow+'</div><span class="day">'+dStr.day+'</span><div class="mon">'+dStr.mon+'</div></div>'+
-        '<div class="s-meta"><b>Soirée JDR</b><div class="lieu">'+icon('pin')+esc(s.lieu||'Lieu à confirmer')+' · dès 20h</div></div>'+
+        '<div class="s-meta"><b>Soirée JDR</b><div class="lieu">'+icon('pin')+esc(s.lieu||'Lieu à confirmer')+' · '+esc((window.CONTENT&&CONTENT.infos&&CONTENT.infos.heure)||'dès 20h')+'</div></div>'+
         '<span class="s-free '+(free?'has':'none')+'">'+(free? free+' table'+(free>1?'s':'')+' libre'+(free>1?'s':'') : 'Complet')+'</span>'+
       '</div>'+
       '<div class="tables">'+s.tables.map((_,ti)=>tileHTML(si,ti)).join('')+'</div>';

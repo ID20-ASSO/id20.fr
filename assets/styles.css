@@ -41,6 +41,7 @@ img{max-width:100%}
 .eyebrow{display:inline-block; font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:.16em; color:var(--ra-navy)}
 .eyebrow.orange{color:var(--ra-orange-600)} .eyebrow.muted{color:var(--text-muted)}
 .eyebrow.rule::after{content:""; display:inline-block; width:34px; height:2px; background:currentColor; opacity:.4; margin-left:12px; vertical-align:middle}
+.eyebrow.lead::before{content:""; display:inline-block; width:34px; height:2px; background:currentColor; opacity:.6; margin-right:12px; vertical-align:middle}
 
 .btn{display:inline-flex; align-items:center; justify-content:center; gap:9px; font:inherit; font-weight:700;
   font-size:15px; line-height:1; padding:0 22px; height:44px; border-radius:999px; border:1.5px solid transparent;
@@ -60,6 +61,7 @@ img{max-width:100%}
 .badge.orange{background:var(--ra-orange); color:var(--text-on-orange)}
 .badge.navy{background:var(--ra-navy); color:#fff}
 .badge.soft{background:var(--ra-navy-050); color:var(--ra-navy-500); text-transform:none; letter-spacing:0; font-weight:600}
+.badge.sys{background:var(--ra-orange-100); color:var(--ra-orange-700); text-transform:uppercase; letter-spacing:.06em; border-radius:8px; font-weight:700}
 
 .card{background:var(--surface-card); border:1px solid var(--border-subtle); border-radius:18px; padding:24px;
   box-shadow:0 1px 2px rgba(4,22,52,.04), 0 8px 24px rgba(4,22,52,.05)}
@@ -120,7 +122,7 @@ img{max-width:100%}
 .tcard{display:flex; flex-direction:column; gap:12px; min-height:230px}
 .tcard h3{font-size:23px; color:var(--ra-navy); margin:4px 0 0}
 .tcard p{font-size:16px; line-height:1.6; margin:0}
-.tcard .foot{margin-top:auto; font-size:13.5px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--text-muted)}
+.tcard .lbl{margin-top:auto; font-size:13.5px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--text-muted)}
 
 .lieu-card{display:flex; flex-direction:column; gap:10px}
 .lieu-card h3{font-size:26px; color:#fff; margin:6px 0 0}

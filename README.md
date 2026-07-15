@@ -27,7 +27,8 @@ vit dans l'Apps Script (non commité dans ce dépôt public).
 |---|---|
 | `index.html` | **Accueil** : présentation de l'asso (hero, tables, lieux, adhésion, contact). |
 | `planning.html` | **Planning** : consultation des soirées + réservation/libération (connexion adhérent). |
-| `assets/config.js` | **Le seul fichier à régler** : URLs (CSV, backend), colonnes du Sheet, marqueur de créneau libre. |
+| `assets/config.js` | **Réglages techniques** : URLs (CSV, backend), colonnes du Sheet, marqueur de créneau libre. |
+| `assets/content.js` | **Textes éditables** : lieux, adhésion, contact (Discord/e-mail), horaire. Se modifie sans toucher au HTML. |
 | `assets/styles.css` | Charte graphique partagée (thème navy + or, composants). |
 | `assets/site.js` | En-tête + pied de page + menu (`SITE_NAV`) + connexion adhérent, partagés et injectés sur chaque page. |
 | `assets/planning.js` | Logique du planning (lecture CSV, rendu, prise/libération). Chargée seulement sur `planning.html`. |

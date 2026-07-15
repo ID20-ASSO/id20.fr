@@ -164,12 +164,28 @@ async function apiPost(payload){
   return res.json();
 }
 
+/* ================= contenus éditables (content.js) =================
+   Remplit les repères data-txt / data-html / data-href / data-mailto
+   depuis l'objet CONTENT. Si une clé est absente/vide, on ne touche pas
+   au texte d'origine (rien ne disparaît). */
+function cget(path){
+  return (path||"").split('.').reduce((o,k)=> (o&&o[k]!=null)?o[k]:null, window.CONTENT||{});
+}
+function bindContent(){
+  if(!window.CONTENT) return;
+  document.querySelectorAll('[data-txt]').forEach(el=>{ const v=cget(el.dataset.txt); if(v!=null && v!=="") el.textContent=v; });
+  document.querySelectorAll('[data-html]').forEach(el=>{ const v=cget(el.dataset.html); if(v!=null && v!=="") el.innerHTML=v; });
+  document.querySelectorAll('[data-href]').forEach(el=>{ const v=cget(el.dataset.href); if(v) el.setAttribute('href',v); });
+  document.querySelectorAll('[data-mailto]').forEach(el=>{ const v=cget(el.dataset.mailto); if(v) el.setAttribute('href','mailto:'+v); });
+}
+
 /* ================= init partagé ================= */
 function initSite(){
   const h=document.getElementById('site-header'); if(h){ h.className='topbar'; h.innerHTML=buildHeader(); }
   const f=document.getElementById('site-footer'); if(f){ f.className='foot'; f.innerHTML=buildFooter(); }
   ensureOverlay();
   renderAccount();
+  bindContent();
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initSite);
