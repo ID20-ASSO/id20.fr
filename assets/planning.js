@@ -8,6 +8,7 @@
 let sessions = [];
 let filter   = "all";
 let target   = null;   // {si, ti} créneau visé par le modal
+let systemsCache = null;   // liste des systèmes (lue depuis le backend, repli config.js)
 
 /* ---------- aperçu hors-ligne (si PLANNING_CSV_URL vide) ----------
    Instantané des 7 soirées à venir tiré du vrai Sheet (juin → sept. 2026).
@@ -122,8 +123,9 @@ function rowToSession(cells){
   const tables=C.tables.map(tc=>{
     const sys=val(cells,tc.sys), mj=val(cells,tc.mj), notes=val(cells,tc.notes);
     if(tc.locked){
-      const undef = isFreeMarker(mj) && isFreeMarker(sys);
-      return {type:tc.type, locked:true, sys: undef?"À définir":(sys||"Initiation"), mj: undef?"Bureau":(mj||"Bureau"), notes};
+      // Table du bureau : si le MJ n'est pas encore nommé, on affiche « Bureau »
+      // (et non « [En attente] »), même quand le système est déjà connu.
+      return {type:tc.type, locked:true, sys: isFreeMarker(sys)?"À définir":sys, mj: isFreeMarker(mj)?"Bureau":mj, notes};
     }
     if(isNA(mj)||isNA(sys)) return {type:tc.type, na:true};
     if(isFreeMarker(mj))    return {type:tc.type, free:true};
@@ -189,7 +191,13 @@ function tileHTML(si,ti){
       '</div>';
 }
 function render(){
-  const num=document.getElementById('tally-num'); if(num) num.textContent=freeCount();
+  const n=freeCount();
+  const num=document.getElementById('tally-num'); if(num) num.textContent=n;
+  const lab=document.getElementById('tally-lab');
+  if(lab){
+    let maxd=null; sessions.forEach(s=>{ if(s.date && (!maxd || s.date>maxd)) maxd=s.date; });
+    lab.innerHTML=(n===1?'table à pourvoir':'tables à pourvoir')+(maxd?'<br>avant le '+maxd.getDate()+' '+MONTHS[maxd.getMonth()]:'');
+  }
   const board=document.getElementById('board'); if(!board) return;
   board.innerHTML="";
   if(!sessions.length){ board.innerHTML='<p style="color:var(--text-muted);padding:20px 0">Aucune soirée à venir au planning pour l\'instant.</p>'; return; }
@@ -219,24 +227,69 @@ function setFilter(f){
   render();
 }
 
+/* ---------- liste des systèmes (backend + repli config.js) ---------- */
+function sysList(){ return (systemsCache && systemsCache.length) ? systemsCache : CONFIG.SYSTEMS; }
+async function loadSystems(){
+  if(CONFIG.BACKEND_URL){
+    try{ const r=await apiPost({action:'getSystems'}); if(r&&r.ok&&Array.isArray(r.systems)&&r.systems.length){ systemsCache=r.systems; return systemsCache; } }catch(e){}
+  }
+  if(!systemsCache) systemsCache=CONFIG.SYSTEMS.slice();
+  return systemsCache;
+}
+function sysControlHTML(selected){
+  const opts=sysList().map(x=>'<option'+(selected&&norm(x)===norm(selected)?' selected':'')+'>'+esc(x)+'</option>').join('');
+  return '<select id="f-sys">'+opts+'</select>'+
+    '<button type="button" class="btn-add" onclick="showSysAdd()" title="Ajouter un système" aria-label="Ajouter un système">+</button>';
+}
+function showSysAdd(){
+  const c=document.getElementById('sys-control'); if(!c) return;
+  c.innerHTML='<input id="f-sys-new" placeholder="Nouveau système…" autocomplete="off" maxlength="60">'+
+    '<button type="button" class="btn-add ok" onclick="confirmAddSys()" title="Ajouter" aria-label="Ajouter">✓</button>'+
+    '<button type="button" class="btn-add cancel" onclick="cancelAddSys()" title="Annuler" aria-label="Annuler">✕</button>';
+  const i=document.getElementById('f-sys-new');
+  if(i){ i.focus(); i.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();confirmAddSys();} else if(e.key==='Escape'){e.preventDefault();cancelAddSys();} }); }
+  const err=document.getElementById('sys-add-err'); if(err) err.classList.remove('show');
+}
+function cancelAddSys(){ const c=document.getElementById('sys-control'); if(c) c.innerHTML=sysControlHTML(); const err=document.getElementById('sys-add-err'); if(err) err.classList.remove('show'); }
+async function confirmAddSys(){
+  const i=document.getElementById('f-sys-new'), err=document.getElementById('sys-add-err');
+  const name=(i?i.value:'').trim();
+  if(!name){ if(err){ err.textContent='Entrez un nom de système.'; err.classList.add('show'); } return; }
+  if(!session.token){ if(err){ err.textContent='Reconnectez-vous.'; err.classList.add('show'); } return; }
+  const cat=sessions[target.si].tables[target.ti].type;   // Découverte / Adventure League
+  try{
+    const r=await apiPost({action:'addSystem', token:session.token, systeme:name, categorie:cat});
+    if(r&&r.ok){
+      if(Array.isArray(r.systems)&&r.systems.length) systemsCache=r.systems;
+      else { systemsCache=systemsCache||CONFIG.SYSTEMS.slice(); if(!systemsCache.some(x=>norm(x)===norm(name))) systemsCache.push(name); }
+      const c=document.getElementById('sys-control'); if(c) c.innerHTML=sysControlHTML(name);
+      if(err) err.classList.remove('show');
+    } else if(err){ err.textContent=(r&&r.error)||'Ajout impossible.'; err.classList.add('show'); }
+  }catch(e){ if(err){ err.textContent='Erreur réseau, réessayez.'; err.classList.add('show'); } }
+}
+
 /* ---------- prendre une table ---------- */
 function onTake(si,ti){
   if(!session.token){ openLogin(); return; }
   target={si,ti};
   const s=sessions[si], d=s.date;
   const dStr=d?DOW[d.getDay()]+' '+d.getDate()+' '+MONTHS[d.getMonth()]:'date';
-  const sysOpts=CONFIG.SYSTEMS.map(x=>'<option>'+esc(x)+'</option>').join('');
   showModal('<div class="m-head"><span class="eyebrow orange">Réservation MJ</span><h3>Prendre cette table</h3><p>Vous proposez de masteriser ce créneau. Il sera réservé à votre nom.</p></div>'+
     '<div class="m-body">'+
       '<div class="chiprow"><span class="badge soft">'+dStr+'</span><span class="badge soft">'+esc(s.lieu||'Lieu à confirmer')+'</span><span class="badge orange">Table '+(ti+1)+' · '+s.tables[ti].type+'</span></div>'+
-      '<div class="field"><label for="f-sys">Système proposé</label><select id="f-sys">'+sysOpts+'</select></div>'+
+      '<div class="field"><label for="f-sys">Système proposé</label>'+
+        '<div class="sys-row" id="sys-control">'+sysControlHTML()+'</div>'+
+        '<div class="err-msg" id="sys-add-err">Nom invalide ou déjà présent.</div></div>'+
       '<div class="field"><label for="f-note">Scénario, niveau, nb de joueurs (optionnel)</label><input id="f-note" placeholder="Ex. : intro, 4 joueurs max"></div>'+
       '<div class="m-actions"><button class="btn ghost" onclick="closeModal()">Annuler</button>'+
         '<button class="btn" onclick="confirmTake()">'+icon('check')+'Confirmer la réservation</button></div></div>');
   setTimeout(()=>{const e=document.getElementById('f-sys'); if(e)e.focus();},50);
+  // rafraîchit la liste depuis le backend en tâche de fond (sans gêner si l'ajout est ouvert)
+  loadSystems().then(()=>{ const c=document.getElementById('sys-control'); if(c && !document.getElementById('f-sys-new')){ const sel=document.getElementById('f-sys'); c.innerHTML=sysControlHTML(sel?sel.value:null); } });
 }
 async function confirmTake(){
-  const sys=document.getElementById('f-sys').value, notes=document.getElementById('f-note').value;
+  let selEl=document.getElementById('f-sys'); if(!selEl){ cancelAddSys(); selEl=document.getElementById('f-sys'); }
+  const sys=selEl?selEl.value:'', notes=document.getElementById('f-note').value;
   const s=sessions[target.si], t=s.tables[target.ti];
   showModal('<div class="center"><div class="spin"></div><p>Vérification de la disponibilité…</p><p class="sub">Écriture dans le planning partagé</p></div>');
   try{
@@ -278,6 +331,6 @@ async function confirmRelease(){
 }
 
 /* ---------- init (seulement si la page a un planning) ---------- */
-function initPlanning(){ if(document.getElementById('board')) loadPlanning(); }
+function initPlanning(){ if(document.getElementById('board')){ loadPlanning(); loadSystems(); } }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initPlanning);
 else initPlanning();

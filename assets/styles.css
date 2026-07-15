@@ -246,6 +246,14 @@ img{max-width:100%}
 .field select:focus,.field input:focus{outline:2px solid var(--ra-orange); outline-offset:1px; border-color:var(--ra-orange)}
 .field .err-msg{color:#9a3b22; font-size:12.5px; margin-top:6px; display:none}
 .field .err-msg.show{display:block}
+/* Menu système + bouton d'ajout (largeur totale conservée) */
+.sys-row{display:flex; gap:8px; align-items:stretch}
+.sys-row select,.sys-row input{flex:1; min-width:0}
+.btn-add{flex:none; width:44px; border:1px solid var(--border-default); border-radius:10px; background:var(--ra-navy); color:#fff; font-size:20px; font-weight:700; line-height:1; cursor:pointer; display:inline-flex; align-items:center; justify-content:center}
+.btn-add:hover{background:var(--ra-navy-600)}
+.btn-add.ok{background:var(--ra-orange); color:var(--text-on-orange); border-color:transparent}
+.btn-add.cancel{background:none; color:var(--text-muted)}
+.btn-add:focus-visible{outline:2px solid var(--ra-orange); outline-offset:2px}
 .m-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:6px}
 .otp-input{letter-spacing:.5em; text-align:center; font-family:"DM Mono",monospace; font-size:22px!important}
 .center{text-align:center; padding:40px 26px}
