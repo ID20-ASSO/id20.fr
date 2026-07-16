@@ -30,7 +30,7 @@ window.CONFIG = {
     date: 0,                           // colonne A
     lieu: 1,                           // colonne B
     tables: [
-      { type: "Initiation",       locked: true,  sys: 2, mj: 3,  notes: 4  }, // C/D/E
+      { type: "Bureau",           locked: true,  sys: 2, mj: 3,  notes: 4  }, // C/D/E
       { type: "Découverte",       locked: false, sys: 5, mj: 6,  notes: 7  }, // F/G/H
       { type: "Adventure League", locked: false, sys: 8, mj: 9,  notes: 10 }, // I/J/K
       // Table 4 (« ??? ») + colonne « Support » : secondaires (cf. cahier des charges §5.2).

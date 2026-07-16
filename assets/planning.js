@@ -174,7 +174,7 @@ function tileHTML(si,ti){
   if(t.locked) return '<div class="tile locked">'+label+
       '<div class="sys">'+esc(t.sys)+'</div><div class="mj"><span class="avatar">'+initials(t.mj)+'</span>'+esc(t.mj)+'</div>'+
       (t.notes?'<div class="note">'+esc(t.notes)+'</div>':'')+
-      '<span class="tag lock">'+icon('lock')+'Assurée par le bureau</span></div>';
+      '</div>';
   if(t.free){
     const label2 = session.token ? 'Prendre cette table' : 'Connectez-vous pour prendre';
     return '<div class="tile free">'+label+
@@ -187,7 +187,7 @@ function tileHTML(si,ti){
       (t.notes?'<div class="note">'+esc(t.notes)+'</div>':'')+
       (mine
         ? '<span class="tag mine">'+icon('star')+'Votre table</span><button class="btn free-out" onclick="onRelease('+si+','+ti+')">Je ne peux plus venir, libérer ma table</button>'
-        : '<span class="tag taken">'+icon('check')+'Réservée</span>')+
+        : '')+
       '</div>';
 }
 function render(){
