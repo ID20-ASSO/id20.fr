@@ -214,8 +214,8 @@ img{max-width:100%}
 .tile{background:var(--surface-card); padding:16px 18px; display:flex; flex-direction:column; min-height:128px}
 .tile .tlabel{font-size:11.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px}
 .tile .tlabel b{color:var(--ra-navy)}
-.tile .sys{font-family:var(--font-display); font-weight:700; font-size:17px; color:var(--text-heading); line-height:1.25}
-.tile .mj{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--text-body); margin:6px 0 0}
+.tile .sys{font-family:var(--font-display); font-weight:700; font-size:18px; color:var(--text-heading); line-height:1.25; margin-top:2px}
+.tile .mj{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--text-body); margin-top:auto; padding-top:8px}
 .tile .note{font-size:13px; color:var(--text-muted); margin-top:5px; line-height:1.4}
 .tile.locked{background:var(--ra-paper)}
 .tile.free{background:var(--ra-orange-050); box-shadow:inset 0 0 0 1.5px var(--ra-orange-200)}
