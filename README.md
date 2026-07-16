@@ -1,78 +1,69 @@
-# ID20 — site & planning des soirées JDR
+# Site ID20
 
-Site de l'association **ID20** (jeu de rôle sur table, Angers), hébergé sur **GitHub Pages**.
-Page d'accueil (`index.html`) : présentation de l'asso, planning des soirées lu en direct
-depuis un Google Sheet, et espace adhérent (connexion par code à usage unique + inscription
-aux tables). Le site est organisé en **fichiers partagés** (charte, en-tête/pied de page,
-logique) pour pouvoir ajouter facilement d'autres pages (systèmes, équipe, galerie…).
+Le site de l'association **ID20** (jeu de rôle sur table à Angers), en ligne sur **https://id20.fr**.
 
-## Architecture en bref
+Deux pages : l'**accueil** (présentation de l'asso) et le **planning** (voir les soirées à venir et réserver une table en tant que MJ).
 
-```
-Navigateur ──┐
-             ├─ id20.fr (GitHub Pages, statique : HTML/CSS/JS)
-             │     ├── lit le planning  ← Google Sheet « Planning » publié en CSV
-             │     └── appelle (fetch)   → Apps Script Web App (backend)
-             │                                 ├── OTP e-mail (Sheet « Adhérents »)
-             │                                 ├── inscription / désinscription (écrit le Sheet « Planning »)
-             │                                 └── notification Discord (webhook)
-```
+---
 
-GitHub Pages est **statique** : aucun secret ni code serveur ici. Toute la logique sensible
-vit dans l'Apps Script (non commité dans ce dépôt public).
+## Comment le site se met à jour
 
-## Fichiers
+Le site est hébergé **gratuitement sur GitHub Pages**. Dès que tu enregistres une modification d'un fichier sur GitHub (un « commit »), le site se met à jour tout seul en **~1 minute**.
 
-| Fichier | Rôle |
+Si tu ne vois pas ton changement : fais **Ctrl + Shift + R** (le navigateur garde des versions en mémoire), ou attends une minute.
+
+---
+
+## « Je veux… » — les cas courants
+
+| Je veux… | Où aller |
 |---|---|
-| `index.html` | **Accueil** : présentation de l'asso (hero, tables, lieux, adhésion, contact). |
-| `planning.html` | **Planning** : consultation des soirées + réservation/libération (connexion adhérent). |
-| `assets/config.js` | **Réglages techniques** : URLs (CSV, backend), colonnes du Sheet, marqueur de créneau libre. |
-| `assets/content.js` | **Textes éditables** : lieux, adhésion, contact (Discord/e-mail), horaire. Se modifie sans toucher au HTML. |
-| `assets/styles.css` | Charte graphique partagée (thème navy + or, composants). |
-| `assets/site.js` | En-tête + pied de page + menu (`SITE_NAV`) + connexion adhérent, partagés et injectés sur chaque page. |
-| `assets/planning.js` | Logique du planning (lecture CSV, rendu, prise/libération). Chargée seulement sur `planning.html`. |
-| `.nojekyll` | Désactive Jekyll sur GitHub Pages (sinon les dossiers `_*` sont ignorés). |
-| `CNAME` | Créé automatiquement par GitHub quand on renseigne le domaine `id20.fr`. |
-| `README.md` / `CHECKLIST-HUMAINE.md` | Ce fichier / étapes manuelles (DNS, Pages, Discord, Apps Script, Sheets). |
+| Changer un **texte** (lieux, adhésion, contact) | `assets/content.js` |
+| Changer le **lien Discord**, l'**e-mail** ou le **lien d'adhésion** | `assets/content.js` |
+| Changer l'**horaire** d'un lieu | `assets/content.js` |
+| Modifier le **planning** (soirées, systèmes, MJ) | le Google Sheet **« Planning »** (pas le code) |
+| Autoriser un **nouvel adhérent** à se connecter | le Google Sheet **« Adhérents »** (une ligne : nom + e-mail) |
+| Ajouter un **système de jeu** | depuis le site (bouton **+** à la réservation) ou l'onglet **DATA** du Sheet |
+| Changer les **couleurs / polices** | `assets/styles.css` |
+| Régler une **URL technique** (Sheet, backend) | `assets/config.js` |
 
-> La maquette de référence `id20-planning.html` n'a pas vocation à être servie ;
-> elle reste comme document de design. Ne pas la déployer telle quelle.
+> Règle simple : tout ce qui touche au **contenu du planning** se fait dans le **Google Sheet**, jamais dans le code. Le site lit le Sheet en direct.
 
-### Ajouter une page (systèmes, équipe, galerie…)
+---
 
-1. Copier `index.html`, ne garder que `<header id="site-header">`, le contenu, `<footer id="site-footer">`
-   et les `<script>` (sans `planning.js` si la page n'a pas de planning).
-2. Ajouter une entrée dans `SITE_NAV` (en haut de `assets/site.js`) → le menu se met à jour partout.
+## Comment tout est branché (vue d'ensemble)
 
-L'en-tête, le pied de page et la charte sont écrits **une seule fois** : pas de copier-coller à maintenir.
+- **Le site** (ce dépôt) : des pages HTML/CSS/JS servies par GitHub Pages → `id20.fr`.
+- **Le planning** : un **Google Sheet** publié, que le site lit en direct.
+- **La connexion + l'inscription des MJ** : un **Google Apps Script** (le « backend ») qui envoie les codes par e-mail et écrit dans le Sheet.
+- **Les e-mails** (codes de connexion) : envoyés via **Brevo** (compte de l'asso).
 
-## Configuration (un seul fichier à toucher)
+---
 
-Dans **`assets/config.js`**, l'objet **`CONFIG`** :
+## Les fichiers (pour info)
 
-- **`PLANNING_CSV_URL`** — URL de publication CSV du Sheet « Planning ».
-  Tant qu'elle est vide (`""`), la page tourne en **mode démonstration** avec des données d'exemple.
-- **`BACKEND_URL`** — URL de la Web App Apps Script. Tant qu'elle est vide, l'inscription
-  affiche « bientôt disponible » ; le planning reste consultable.
-- **`FUTURE_ONLY`** — n'afficher que les soirées à venir.
-- **`COLS`** — correspondance entre les **en-têtes réels** du Sheet et les champs de la page.
-  **À ajuster** après inspection du vrai Sheet (voir §10 du cahier des charges).
-- **`FREE_MARKER`** — valeur signalant un créneau libre (par défaut `[En attente]`).
+- `index.html` / `planning.html` : les deux pages.
+- `assets/content.js` : **les textes** — le fichier que tu édites le plus souvent.
+- `assets/config.js` : les réglages techniques (URLs du Sheet et du backend).
+- `assets/site.js`, `assets/planning.js` : le fonctionnement (à ne modifier qu'en connaissance de cause).
+- `assets/styles.css` : l'apparence (couleurs, polices).
+- `assets/logo-id20.png` : le logo.
+- `CNAME`, `.nojekyll`, `robots.txt`, `sitemap.xml` : réglages techniques et référencement — **ne pas supprimer**.
 
-## Mise en route
+---
 
-1. Renseigner `PLANNING_CSV_URL` puis ajuster `COLS` aux colonnes réelles du Sheet.
-2. Déployer l'Apps Script, coller son URL dans `BACKEND_URL`.
-3. Suivre `CHECKLIST-HUMAINE.md` pour le DNS, Pages, le domaine, Discord et les Sheets.
+## Attention (à ne pas toucher)
 
-## État d'avancement
+- **`CNAME`** : c'est lui qui relie le site à `id20.fr`. Ne le supprime pas.
+- Le **backend** (`ID20-AppsScript-Code.gs`) ne vit **pas** dans ce dépôt : il se colle dans l'éditeur Google Apps Script. Pour le mettre à jour, il faut **redéployer une nouvelle version** dans Apps Script (un simple commit GitHub ne suffit pas).
+- Aucun **secret** (clé Brevo, webhook Discord) ne doit apparaître dans ce dépôt : ils sont rangés dans les « Script Properties » d'Apps Script.
 
-- [x] Page de consultation (présentation + planning, aperçu hors-ligne)
-- [x] UI d'espace adhérent (connexion OTP + inscription/désinscription) câblée au backend
-- [x] Parseur adapté au vrai Sheet « Planning » (en-tête sur 2 lignes, colonnes par position, filtre date)
-- [x] Code backend Apps Script écrit (fichier `ID20-AppsScript-Code.gs`, à coller — pas dans ce dépôt)
-- [ ] URL CSV du Sheet « Planning » publiée + collée dans `assets/config.js`
-- [ ] Backend Apps Script déployé + `BACKEND_URL` branché (+ Script Property `DISCORD_WEBHOOK_URL`)
-- [ ] Domaine `id20.fr` + HTTPS
-- [ ] Webhook Discord
+---
+
+## En cas de souci
+
+- **Un changement n'apparaît pas** → Ctrl + Shift + R, ou patiente 1 à 2 minutes (le temps du déploiement).
+- **La connexion ne fonctionne plus** → vérifier le déploiement Apps Script et le compte Brevo.
+- **Le planning affiche un exemple** au lieu des vraies soirées → vérifier que le Sheet est bien publié et que son URL est dans `assets/config.js`.
+
+Pour la mise en route complète (déploiement, DNS, Apps Script, Brevo), voir **`GUIDE-DEMARRAGE.md`**.
