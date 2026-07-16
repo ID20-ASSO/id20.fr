@@ -45,4 +45,12 @@ window.CONFIG = {
   // Liste des systèmes proposés dans le formulaire d'inscription
   // (extraite de l'onglet DATA du Sheet ; à terme on pourra la lire dynamiquement).
   SYSTEMS: ["D&D 5E","Tales from the Loop","Mörk Borg","Cy_Borg","Knight","NEXUS","Daggerheart","DCC","Eat the Reich","Mothership","Fallout","L'appel de Cthulhu","Les Légendaires","Tiny D6","Dédales","Donjons & Chatons","Warhammer 40K","TGCQ","Dies Irae","Zcorps","Ragnarok","Sins of the Father","FF XIV"],
+
+  // Statistiques Umami (sans cookie, pas de bannière de consentement).
+  // Colle l'ID de site fourni par Umami dans WEBSITE_ID pour activer le suivi.
+  // Tant que WEBSITE_ID est vide, aucun script de suivi n'est chargé.
+  UMAMI: {
+    SRC: "https://cloud.umami.is/script.js",   // ou l'URL de ton Umami auto-hébergé
+    WEBSITE_ID: "7f0b3458-0b92-4ffd-b40f-cbfe0dbba96b",                            // ← colle ici l'identifiant du site
+  },
 };

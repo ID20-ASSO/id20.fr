@@ -103,7 +103,7 @@ function renderAccount(){
     slot.innerHTML='<div class="who"><span class="avatar">'+initials(session.name||session.email)+'</span>'+
       '<span>'+esc(session.name||session.email)+'</span><button onclick="logout()">Déconnexion</button></div>';
   }else{
-    slot.innerHTML='<button class="btn sm" onclick="openLogin()">'+icon('user')+'Connexion adhérent</button>';
+    slot.innerHTML='<button class="btn sm" data-umami-event="connexion-ouvrir" onclick="openLogin()">'+icon('user')+'Connexion adhérent</button>';
   }
 }
 function afterAuthChange(){ renderAccount(); if(typeof render==='function') render(); }
@@ -196,6 +196,19 @@ function bindContent(){
   document.querySelectorAll('[data-mailto]').forEach(el=>{ const v=cget(el.dataset.mailto); if(v) el.setAttribute('href','mailto:'+v); });
 }
 
+/* ================= statistiques (Umami, sans cookie) =================
+   Charge le script Umami UNIQUEMENT si un identifiant de site est renseigné
+   dans CONFIG.UMAMI.WEBSITE_ID. Aucun cookie, donc pas de bannière requise. */
+function initAnalytics(){
+  const u = (typeof CONFIG!=='undefined') && CONFIG.UMAMI;
+  if(!u || !u.WEBSITE_ID) return;                                 // pas d'ID → aucun suivi
+  if(document.querySelector('script[data-website-id]')) return;   // déjà chargé
+  const s=document.createElement('script');
+  s.defer=true; s.src=u.SRC || 'https://cloud.umami.is/script.js';
+  s.setAttribute('data-website-id', u.WEBSITE_ID);
+  document.head.appendChild(s);
+}
+
 /* ================= init partagé ================= */
 function initSite(){
   const h=document.getElementById('site-header'); if(h){ h.className='topbar'; h.innerHTML=buildHeader(); }
@@ -204,6 +217,7 @@ function initSite(){
   restoreSession();
   renderAccount();
   bindContent();
+  initAnalytics();
   document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initSite);

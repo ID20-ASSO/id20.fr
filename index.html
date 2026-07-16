@@ -3,12 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ID20, association de jeu de rôle à Angers</title>
-<meta name="description" content="ID20, association de jeu de rôle sur table à Angers. Soirées JDR tous les 15 jours chez Ludotrotter et Cartepinte. Initiation, découverte et Adventure League.">
+<title>ID20, jeu de rôle (JDR) à Angers · association de JDR sur table</title>
+<meta name="description" content="ID20, association de jeu de rôle (JDR) sur table à Angers. Soirées chaque mois chez Ludotrotter et Cartepinte : initiation ouverte à tous, découverte et Adventure League.">
+<link rel="canonical" href="https://id20.fr/">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#2c2350">
+<!-- Partage réseaux sociaux (Open Graph) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ID20">
+<meta property="og:title" content="ID20, jeu de rôle (JDR) à Angers">
+<meta property="og:description" content="Association de jeu de rôle sur table à Angers : soirées chaque mois, table d'initiation ouverte à tous.">
+<meta property="og:url" content="https://id20.fr/">
+<meta property="og:image" content="https://id20.fr/assets/logo-id20.png">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+<!-- Données structurées : aide Google à identifier l'association et sa zone (Angers) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "ID20",
+  "alternateName": "ID20 — club de jeu de rôle d'Angers",
+  "description": "Association de jeu de rôle sur table (JDR) à Angers : soirées mensuelles, initiation, découverte et Adventure League.",
+  "url": "https://id20.fr/",
+  "logo": "https://id20.fr/assets/logo-id20.png",
+  "areaServed": { "@type": "City", "name": "Angers" },
+  "location": [
+    { "@type": "Place", "name": "Ludotrotter", "address": { "@type": "PostalAddress", "addressLocality": "Angers", "addressCountry": "FR" } },
+    { "@type": "Place", "name": "Cartepinte", "address": { "@type": "PostalAddress", "addressLocality": "Trélazé", "addressCountry": "FR" } }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -22,8 +51,8 @@
       <p class="lead">ID20 réunit les rôlistes d'Angers autour d'une table, de quelques dés et d'une bonne histoire. Tous les mois, retrouvez <b>3 soirées</b> dédiées au jeu de rôle et partagez ces moments avec notre communauté.</p>
       <p class="lead sm"><b>Jamais joué&nbsp;?</b> Une table d'initiation vous attend une fois par mois : on vous explique tout, on vous prête du matériel et vous jouez&nbsp;!</p>
       <div class="hero-actions">
-        <a class="btn lg arrow" href="planning.html">Voir le planning</a>
-        <a class="btn lg outline" href="#soirees">Comment ça marche</a>
+        <a class="btn lg arrow" href="planning.html" data-umami-event="cta-voir-planning">Voir le planning</a>
+        <a class="btn lg outline" href="#soirees" data-umami-event="cta-comment-ca-marche">Comment ça marche</a>
       </div>
     </div>
     <div class="hero-visual">
@@ -90,7 +119,7 @@
       </div></div>
     </div>
     <div style="margin-top:30px;display:flex;justify-content:center">
-      <a class="btn arrow" href="planning.html">Consulter le planning des soirées</a>
+      <a class="btn arrow" href="planning.html" data-umami-event="cta-planning-soirees">Consulter le planning des soirées</a>
     </div>
   </div>
 </section>
@@ -134,7 +163,7 @@
         <span class="eyebrow" style="color:rgba(34,26,65,.75)">Adhésion annuelle</span>
         <div style="font-family:var(--font-display);font-weight:800;font-size:56px;line-height:1;color:var(--ra-navy-800);letter-spacing:-.03em;margin-top:6px" data-txt="adhesion.montant">Prix libre</div>
         <span style="display:block;font-size:15px;color:rgba(34,26,65,.85);margin-top:6px" data-txt="adhesion.detail">à partir de 5&nbsp;€, pour la saison de septembre à août</span>
-        <div style="margin-top:18px"><a class="btn lg" href="#contact" data-href="adhesion.url">Adhérer à ID20</a></div>
+        <div style="margin-top:18px"><a class="btn lg" href="#contact" data-href="adhesion.url" data-umami-event="cta-adherer">Adhérer à ID20</a></div>
         <span style="display:block;font-size:13px;color:rgba(34,26,65,.75);margin-top:10px" data-txt="adhesion.note">Les soirées classiques restent gratuites pour tous</span>
       </div>
     </div>
@@ -149,8 +178,8 @@
       <h2>Une question, une envie de table&nbsp;?</h2>
       <p data-html="contact.intro">Le plus simple est de passer nous voir un mercredi soir, ou de nous écrire sur le Discord de l'association.</p>
       <div class="actions">
-        <a class="btn orange lg" href="#" data-href="contact.discordUrl">Rejoindre le Discord</a>
-        <a class="link-out" href="#" data-mailto="contact.email">Nous écrire</a>
+        <a class="btn orange lg" href="#" data-href="contact.discordUrl" data-umami-event="clic-discord">Rejoindre le Discord</a>
+        <a class="link-out" href="#" data-mailto="contact.email" data-umami-event="clic-email">Nous écrire</a>
       </div>
     </div>
     <div style="display:flex;justify-content:center">

@@ -179,7 +179,7 @@ function tileHTML(si,ti){
     const label2 = session.token ? 'Prendre cette table' : 'Connectez-vous pour prendre';
     return '<div class="tile free">'+label+
       '<div class="hint">Personne pour l\'instant…</div>'+
-      '<button class="btn take'+(CONFIG.BACKEND_URL?'':' sm')+'" '+(CONFIG.BACKEND_URL?'':'disabled title="Inscription bientôt disponible"')+' onclick="onTake('+si+','+ti+')">'+icon('plus')+label2+'</button></div>';
+      '<button class="btn take'+(CONFIG.BACKEND_URL?'':' sm')+'" data-umami-event="prendre-table" '+(CONFIG.BACKEND_URL?'':'disabled title="Inscription bientôt disponible"')+' onclick="onTake('+si+','+ti+')">'+icon('plus')+label2+'</button></div>';
   }
   const mine = session.name && norm(t.mj)===norm(session.name);
   return '<div class="tile">'+label+
