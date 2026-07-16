@@ -11,7 +11,7 @@ window.CONFIG = {
   // URL de la Web App Apps Script (backend OTP + inscription).
   // Laisser "" tant que le backend n'est pas déployé : l'inscription affiche
   // « bientôt disponible » et le planning reste consultable.
-  BACKEND_URL: "https://script.google.com/macros/s/AKfycbz76CtMvTrXtxF8xIrSVFsf18ZNqsgN7znUH9vd8MpfVMZY3K0wCBDNw-AFiyo6hJHz/exec",
+  BACKEND_URL: "https://script.google.com/macros/s/AKfycbxAsluPkatFrQ03v0UjEvgmYZ_UNHLy8_5K6ZUmz-ZTiMnNBaRLeMln9ptAh2FD41JZ/exec",
 
   // N'afficher que les soirées à venir (>= aujourd'hui) ?
   FUTURE_ONLY: true,
