@@ -18,6 +18,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+<style>
+  /* Le dé est cliquable : on l'annonce visuellement, sans bouton parasite. */
+  #d20{width:340px;height:340px;max-width:80vw;image-rendering:pixelated;cursor:pointer;
+       background:none;border:0;padding:0;display:block;margin:0 auto}
+  #d20:focus-visible{outline:2px solid var(--ra-orange); outline-offset:6px; border-radius:8px}
+  .relance{display:block;font-size:13px;color:var(--text-muted);margin-top:2px}
+</style>
 </head>
 <body>
 
@@ -25,13 +32,13 @@
 
 <section class="section page">
   <div class="wrap">
-    <div style="max-width:680px;margin:0 auto;text-align:center;padding:24px 0 20px">
+    <div style="max-width:680px;margin:0 auto;text-align:center;padding:16px 0 20px">
       <span class="eyebrow orange rule">Erreur 404</span>
-      <div style="margin-top:10px">
-        <canvas id="d20" width="96" height="96" aria-hidden="true" title="Relancer le dé"
-                style="width:300px;height:300px;max-width:72vw;image-rendering:pixelated;cursor:pointer"></canvas>
-      </div>
-      <h1>Échec critique&nbsp;!</h1>
+      <canvas id="d20" width="160" height="160" role="img"
+              aria-label="Un dé à 20 faces qui retombe sur 404" tabindex="0"
+              title="Cliquez pour relancer le dé"></canvas>
+      <span class="relance">Cliquez sur le dé pour le relancer</span>
+      <h1 style="margin-top:14px">Échec critique&nbsp;!</h1>
       <p class="lead" style="margin-top:14px">Vous lancez le d20 pour trouver cette page… et le dé tombe sur 404. Elle n'existe pas, a changé d'adresse, ou a été dévorée par un mimic.</p>
       <p class="lead sm" style="margin-top:8px">Pas de panique&nbsp;: le maître du jeu vous accorde un nouveau jet.</p>
       <div class="hero-actions" style="justify-content:center;margin-top:26px">
@@ -49,9 +56,9 @@
 <script src="assets/site.js"></script>
 
 <!-- ============ Dé 20 pixel-art : tombe sur 404 ============
-     Rendu logiciel sur canvas 96×96 (aucune dépendance).
+     Rendu logiciel sur canvas 160×160 (aucune dépendance).
      Adapté du « D20 Loader » : palette ID20, atterrissage fixé sur 404,
-     pas de boucle infinie (le dé reste posé), clic = relancer. -->
+     le dé reste posé (pas de boucle), clic ou touche = nouveau jet. -->
 <script>
 (function(){
   var canvas = document.getElementById('d20');
@@ -68,8 +75,8 @@
   var RESULT  = '404';
 
   /* ---- géométrie : icosaèdre + quaternions ---- */
-  var t = (1 + Math.sqrt(5)) / 2;
-  var verts = [[-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]]
+  var PHI = (1 + Math.sqrt(5)) / 2;
+  var verts = [[-1,PHI,0],[1,PHI,0],[-1,-PHI,0],[1,-PHI,0],[0,-1,PHI],[0,1,PHI],[0,-1,-PHI],[0,1,-PHI],[PHI,0,-1],[PHI,0,1],[-PHI,0,-1],[-PHI,0,1]]
     .map(function(v){ var l = Math.hypot(v[0],v[1],v[2]); return [v[0]/l, v[1]/l, v[2]/l]; });
   var faces = [[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
 
@@ -95,29 +102,45 @@
     return qNorm(a.map(function(v,i){ return v*sA+bb[i]*sB; }));
   }
 
-  /* orientation cible : face 0 vers la caméra, un sommet vers le haut */
+  /* orientation cible : face 0 face à la caméra, un sommet vers le haut */
   var f0 = faces[0];
   var c0 = (function(){ var a=[0,0,0]; [0,1,2].forEach(function(i){ a[0]+=verts[f0[i]][0]; a[1]+=verts[f0[i]][1]; a[2]+=verts[f0[i]][2]; });
     var l = Math.hypot(a[0],a[1],a[2]); return [a[0]/l,a[1]/l,a[2]/l]; })();
-  var ax = [c0[1]*1-c0[2]*0, c0[2]*0-c0[0]*1, c0[0]*0-c0[1]*0];   /* c0 × (0,0,1) */
+  var ax = [c0[1], -c0[0], 0];                                     /* c0 × (0,0,1) */
   var s0 = Math.hypot(ax[0],ax[1],ax[2]);
   var qA = [1,0,0,0];
   if (s0 > 1e-6) qA = qAxis([ax[0]/s0,ax[1]/s0,ax[2]/s0], Math.acos(Math.max(-1,Math.min(1,c0[2]))));
-  var p0 = qRot(qA, verts[f0[0]]);
-  var qTarget = qMul(qAxis([0,0,1], Math.PI/2 - Math.atan2(p0[1], p0[0])), qA);
+  var pUp = qRot(qA, verts[f0[0]]);
+  var qTarget = qMul(qAxis([0,0,1], Math.PI/2 - Math.atan2(pUp[1], pUp[0])), qA);
 
-  /* ---- glyphes 4×5 pour les chiffres ---- */
+  /* ---- cadrage : le dé occupe presque tout le canvas ---- */
+  var S = 160, cx = 80, cy = 80;
+  var R_LAND = 76, R_TUMBLE = 50;
+  var SHADOW_Y = 157;
+
+  /* Taille des chiffres calculée depuis la face avant : on inscrit le bloc
+     « 404 » dans le cercle inscrit du triangle, avec 8 % de marge — ainsi les
+     chiffres ne touchent jamais les arêtes, quel que soit le rayon du dé. */
+  var faceR = (function(){ var p = qRot(qTarget, verts[f0[0]]); return Math.hypot(p[0], p[1]) * R_LAND; })();
+  var inradius = faceR / 2;                                        /* triangle équilatéral */
+  var NDIG = RESULT.length;
+  var SCALE = (function(){
+    /* bloc de largeur (5·n − 1)·s et de hauteur 5·s → demi-diagonale */
+    var halfW = (5*NDIG - 1)/2, halfH = 2.5;
+    var maxS = (inradius * 0.92) / Math.hypot(halfW, halfH);
+    return Math.max(1, Math.floor(maxS));
+  })();
+
+  /* ---- glyphes 4×5 ---- */
   var G = {
-    '0':['1111','1001','1001','1001','1111'],
-    '4':['1001','1001','1111','0001','0001'],
-    '1':['0010','0110','0010','0010','0111'],'2':['1111','0001','1111','1000','1111'],
-    '3':['1111','0001','0111','0001','1111'],'5':['1111','1000','1111','0001','1111'],
+    '0':['1111','1001','1001','1001','1111'],'1':['0010','0110','0010','0010','0111'],
+    '2':['1111','0001','1111','1000','1111'],'3':['1111','0001','0111','0001','1111'],
+    '4':['1001','1001','1111','0001','0001'],'5':['1111','1000','1111','0001','1111'],
     '6':['1111','1000','1111','1001','1111'],'7':['1111','0001','0010','0100','0100'],
     '8':['1111','1001','1111','1001','1111'],'9':['1111','1001','1111','0001','1111']
   };
 
   /* ---- rendu ---- */
-  var S = 96, cx = 48, cy = 48;
   function draw(q, R, yOff, showNum){
     var img = ctx.createImageData(S, S), d = img.data;
     function put(x, y, c, a){
@@ -126,9 +149,9 @@
       var i = (y*S + x)*4;
       d[i] = c[0]; d[i+1] = c[1]; d[i+2] = c[2]; d[i+3] = (a === undefined) ? 255 : a;
     }
-    /* ombre */
-    var shw = Math.max(4, 17 - Math.abs(yOff)*2.2);
-    for (var y = 90; y <= 91; y++)
+    /* ombre au sol */
+    var shw = Math.max(7, 30 - Math.abs(yOff)*2.2);
+    for (var y = SHADOW_Y; y <= SHADOW_Y+1; y++)
       for (var x = Math.round(cx - shw); x <= Math.round(cx + shw); x++)
         put(x, y, OUTLINE, 42);
 
@@ -154,18 +177,19 @@
     });
 
     if (showNum){
-      var digits = RESULT.split('');
-      var total = digits.length*8 + (digits.length-1)*2;
-      var ox = Math.round(48 - total/2);
-      digits.forEach(function(ch){
+      var s = SCALE;
+      var totalW = (5*NDIG - 1) * s;                 /* 4·s par chiffre + 1·s d'espace */
+      var ox = Math.round(cx - totalW/2);
+      var oy = Math.round(cy + yOff - (5*s)/2);      /* centré sur la face */
+      RESULT.split('').forEach(function(ch){
         var glyph = G[ch];
         for (var r = 0; r < 5; r++)
           for (var cIx = 0; cIx < 4; cIx++)
             if (glyph[r][cIx] === '1')
-              for (var sy = 0; sy < 2; sy++)
-                for (var sx = 0; sx < 2; sx++)
-                  put(ox + cIx*2 + sx, 45 + r*2 + sy, ACCENT);
-        ox += 10;
+              for (var sy = 0; sy < s; sy++)
+                for (var sx = 0; sx < s; sx++)
+                  put(ox + cIx*s + sx, oy + r*s + sy, ACCENT);
+        ox += 5*s;
       });
     }
     ctx.putImageData(img, 0, 0);
@@ -176,9 +200,9 @@
     var area = (b[0]-a[0])*(c[1]-a[1]) - (b[1]-a[1])*(c[0]-a[0]);
     if (area < 0){ var tmp = b; b = c; c = tmp; }
     var minX = Math.max(0, Math.floor(Math.min(a[0],b[0],c[0])));
-    var maxX = Math.min(95, Math.ceil(Math.max(a[0],b[0],c[0])));
+    var maxX = Math.min(S-1, Math.ceil(Math.max(a[0],b[0],c[0])));
     var minY = Math.max(0, Math.floor(Math.min(a[1],b[1],c[1])));
-    var maxY = Math.min(95, Math.ceil(Math.max(a[1],b[1],c[1])));
+    var maxY = Math.min(S-1, Math.ceil(Math.max(a[1],b[1],c[1])));
     function edge(p, q, x, y){ return (q[0]-p[0])*(y-p[1]) - (q[1]-p[1])*(x-p[0]); }
     for (var y = minY; y <= maxY; y++)
       for (var x = minX; x <= maxX; x++){
@@ -204,20 +228,22 @@
   }
 
   /* ---- animation : culbute → pose → reste posé sur 404 ---- */
-  var T_TUMBLE = 2.2, T_SETTLE = 1.0, R_LAND = 46;
-  var q, R, phase, phaseStart, lastT, q0, raf;
-  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var T_TUMBLE = 2.2, T_SETTLE = 1.0;
+  var q, R, phase, phaseStart, lastT, q0, raf = 0;
 
-  function start(){
+  function landed(){ phase = 'landed'; draw(qTarget, R_LAND, 0, true); }
+
+  function roll(){
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
     q = qAxis([0.3,0.8,0.5], 0.7);
-    R = 26; phase = 'tumble';
+    R = R_TUMBLE * 0.55;
+    phase = 'tumble';
     lastT = performance.now(); phaseStart = lastT; q0 = null;
-    if (reduced){ phase = 'landed'; draw(qTarget, R_LAND, 0, true); return; }
-    if (raf) cancelAnimationFrame(raf);
     raf = requestAnimationFrame(tick);
   }
 
   function tick(now){
+    raf = 0;
     var dt = Math.min(0.05, (now - lastT)/1000);
     lastT = now;
     var e = (now - phaseStart)/1000;
@@ -228,27 +254,33 @@
       var a = [Math.sin(tt*0.7), Math.cos(tt*0.9)*0.8+0.4, Math.sin(tt*0.5)*0.6];
       var l = Math.hypot(a[0],a[1],a[2]);
       q = qNorm(qMul(qAxis([a[0]/l,a[1]/l,a[2]/l], 4.4*dt), q));
-      yOff = Math.sin(tt*3)*2.5;
-      R += (30 - R) * Math.min(1, dt*6);
+      yOff = Math.sin(tt*3)*4;
+      R += (R_TUMBLE - R) * Math.min(1, dt*6);
       if (e > T_TUMBLE){ phase = 'settle'; q0 = q; phaseStart = now; }
     } else if (phase === 'settle'){
       var k = Math.min(1, e / T_SETTLE);
       var ke = 1 - Math.pow(1-k, 3);
       q = qSlerp(q0, qTarget, ke);
-      R = 30 + (R_LAND-30)*ke;
-      yOff = Math.sin(now/1000*3)*2.5*(1-ke);
+      R = R_TUMBLE + (R_LAND - R_TUMBLE)*ke;
+      yOff = Math.sin(now/1000*3)*4*(1-ke);
       showNum = ke > 0.92;
-      if (k >= 1){ phase = 'landed'; }
-    } else { /* landed : le dé reste posé */
-      draw(qTarget, R_LAND, 0, true);
-      return;
-    }
+      if (k >= 1){ landed(); return; }                 /* posé : plus aucune frame */
+    } else { landed(); return; }
+
     draw(q, R, yOff, showNum);
     raf = requestAnimationFrame(tick);
   }
 
-  canvas.addEventListener('click', start);   /* relancer : ça retombera sur 404, forcément */
-  start();
+  /* Relance à la demande : un clic (ou Entrée / Espace) est une action
+     explicite de l'utilisateur, on l'anime donc même en « mouvement réduit ». */
+  canvas.addEventListener('click', roll);
+  canvas.addEventListener('keydown', function(ev){
+    if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar'){ ev.preventDefault(); roll(); }
+  });
+
+  /* Au chargement : animation, sauf si l'utilisateur a demandé moins de mouvement. */
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) landed(); else roll();
 })();
 </script>
 </body>
