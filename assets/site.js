@@ -11,9 +11,9 @@
 
 /* ---- Le menu : UNE SEULE source pour tout le site ---- */
 const SITE_NAV = [
-  { label: "L'association", href: "index.html" },
-  { label: "Adhérer",       href: "index.html#adhesion" },
-  { label: "Planning MJ",   href: "planning.html" },
+  { label: "L'association", href: "/" },
+  { label: "Adhérer",       href: "/#adhesion" },
+  { label: "Planning MJ",   href: "/planning" },
 ];
 
 /* ---- État de session adhérent (mémorisé dans le navigateur) ---- */
@@ -58,7 +58,16 @@ const D20_LOGO = '<svg class="d20" viewBox="0 0 100 100" fill="none" stroke="cur
   '<path d="M50,5 50,22 M89,27 73,67 M89,73 73,67 M50,95 50,67 M11,73 27,67 M11,27 27,67 M50,22 89,27 M50,22 11,27"/>'+
   '<text x="50" y="58" font-family="DM Mono, monospace" font-size="20" font-weight="600" fill="var(--ra-orange)" text-anchor="middle">20</text></svg>';
 
-function currentPage(){ const p=location.pathname.split('/').pop(); return p||'index.html'; }
+/* Chemin courant sous sa forme canonique, sans extension ni slash final :
+   "/", "/planning", "/mentions-legales"…
+   GitHub Pages sert planning.html indifféremment sur /planning, /planning.html
+   et /planning/ : on ramène ces trois formes à une seule, pour comparer aux
+   entrées de SITE_NAV et pour nettoyer la barre d'adresse (cf. tidyUrl). */
+function currentPage(){
+  let p = location.pathname.replace(/\/index\.html?$/i, '/').replace(/\.html?$/i, '');
+  if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
+  return p || '/';
+}
 
 function buildHeader(){
   const here=currentPage();
@@ -70,14 +79,14 @@ function buildHeader(){
     return '<a class="navlink" href="'+n.href+'"'+active+'>'+esc(n.label)+'</a>';
   }).join('');
   return '<div class="wrap">'+
-    '<a class="brand" href="index.html"><img src="assets/logo-id20.png" alt="ID20" style="height:46px;width:auto;display:block"><div class="t"><b>ID20</b><span>Jeu de rôle · Angers</span></div></a>'+
+    '<a class="brand" href="/"><img src="/assets/logo-id20.png" alt="ID20" style="height:46px;width:auto;display:block"><div class="t"><b>ID20</b><span>Jeu de rôle · Angers</span></div></a>'+
     '<nav class="nav">'+links+'<div id="account-slot"></div></nav>'+
   '</div>';
 }
 function buildFooter(){
   return '<div class="wrap"><span class="dot"></span>'+
     '<span>ID20, association de jeu de rôle sur table à Angers · Association loi 1901</span>'+
-    '<nav><a href="planning.html">Planning</a><a href="index.html#association">L\'association</a><a href="index.html#contact">Contact</a><a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité</a></nav></div>';
+    '<nav><a href="/planning">Planning</a><a href="/#association">L\'association</a><a href="/#contact">Contact</a><a href="/mentions-legales">Mentions légales</a><a href="/confidentialite">Confidentialité</a></nav></div>';
 }
 
 /* ================= fenêtre modale (partagée) ================= */
@@ -209,8 +218,23 @@ function initAnalytics(){
   document.head.appendChild(s);
 }
 
+/* ================= URL propres =================
+   Toutes les URL du site s'écrivent sans .html : « / », « /planning »,
+   « /mentions-legales »… Un visiteur peut malgré tout arriver sur /index.html ou
+   /planning.html par un ancien lien, un favori ou un résultat de recherche :
+   on nettoie alors la barre d'adresse sans recharger la page (ancre conservée).
+   Uniquement en http(s) : en ouverture locale (file://) l'URL doit rester intacte,
+   sinon la page deviendrait introuvable sur le disque. */
+function tidyUrl(){
+  if(!/^https?:$/.test(location.protocol)) return;
+  const clean = currentPage() + location.search + location.hash;
+  if(clean === location.pathname + location.search + location.hash) return;
+  try{ history.replaceState(null, '', clean); }catch(e){}
+}
+
 /* ================= init partagé ================= */
 function initSite(){
+  tidyUrl();
   const h=document.getElementById('site-header'); if(h){ h.className='topbar'; h.innerHTML=buildHeader(); }
   const f=document.getElementById('site-footer'); if(f){ f.className='foot'; f.innerHTML=buildFooter(); }
   ensureOverlay();
