@@ -11,11 +11,9 @@
 
 /* ---- Le menu : UNE SEULE source pour tout le site ---- */
 const SITE_NAV = [
-  { label: "Accueil",       href: "index.html" },
-  { label: "L'association", href: "index.html#association" },
-  { label: "Les soirées",   href: "index.html#soirees" },
-  { label: "Les lieux",     href: "index.html#lieux" },
-  { label: "Planning",      href: "planning.html" },
+  { label: "L'association", href: "index.html" },
+  { label: "Adhérer",       href: "index.html#adhesion" },
+  { label: "Planning MJ",   href: "planning.html" },
 ];
 
 /* ---- État de session adhérent (mémorisé dans le navigateur) ---- */
@@ -66,7 +64,9 @@ function buildHeader(){
   const here=currentPage();
   const links=SITE_NAV.map(n=>{
     const base=n.href.split('#')[0];
-    const active = base===here ? ' aria-current="page"' : '';
+    // Les liens avec ancre (#) ne sont jamais marqués « page active »
+    // pour éviter d'avoir deux entrées actives à la fois sur l'accueil.
+    const active = (base===here && n.href.indexOf('#')===-1) ? ' aria-current="page"' : '';
     return '<a class="navlink" href="'+n.href+'"'+active+'>'+esc(n.label)+'</a>';
   }).join('');
   return '<div class="wrap">'+
@@ -77,7 +77,7 @@ function buildHeader(){
 function buildFooter(){
   return '<div class="wrap"><span class="dot"></span>'+
     '<span>ID20, association de jeu de rôle sur table à Angers · Association loi 1901</span>'+
-    '<nav><a href="planning.html">Planning</a><a href="index.html#association">L\'association</a><a href="index.html#contact">Contact</a></nav></div>';
+    '<nav><a href="planning.html">Planning</a><a href="index.html#association">L\'association</a><a href="index.html#contact">Contact</a><a href="mentions-legales.html">Mentions légales</a><a href="confidentialite.html">Confidentialité</a></nav></div>';
 }
 
 /* ================= fenêtre modale (partagée) ================= */
