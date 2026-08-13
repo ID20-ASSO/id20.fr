@@ -2,17 +2,85 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Page déplacée · ID20</title>
-<!-- Ancienne adresse conservée : cette URL est indexée par les moteurs et peut
-     figurer dans des liens externes. On indique la nouvelle adresse (canonical,
-     que Google et Bing traitent comme une redirection permanente) et on renvoie
-     immédiatement le visiteur. GitHub Pages ne permet pas de vraie 301. -->
-<link rel="canonical" href="https://id20.fr/planning/">
-<meta name="robots" content="noindex, follow">
-<meta http-equiv="refresh" content="0; url=/planning/">
-<script>location.replace("/planning/" + location.hash);</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- URL sans extension (/planning) : base href="/" garantit que les CSS, scripts
+     et liens relatifs se résolvent depuis la racine, quelle que soit la forme de l'URL. -->
+<base href="/">
+<title>Planning · ID20 (JDR Angers)</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="description" content="Planning des soirées de jeu de rôle (JDR) d'ID20 à Angers. Consultez les tables à venir chez Ludotrotter et Cartepinte et réservez un créneau en tant que MJ.">
+<link rel="canonical" href="https://id20.fr/planning">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#2c2350">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ID20">
+<meta property="og:title" content="Planning des soirées JDR à Angers · ID20">
+<meta property="og:description" content="Les prochaines soirées de jeu de rôle d'ID20 à Angers, et les tables à pourvoir.">
+<meta property="og:url" content="https://id20.fr/planning">
+<meta property="og:image" content="https://id20.fr/assets/logo-id20.png">
+<meta property="og:locale" content="fr_FR">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-<p>Cette page a une nouvelle adresse : <a href="/planning/">id20.fr/planning/</a></p>
+
+<header id="site-header"></header>
+
+<!-- ============ HERO PLANNING ============ -->
+<section class="plan-hero">
+  <div class="wrap">
+    <div class="intro">
+      <span class="eyebrow">Planning des soirées</span>
+      <h1>Réservez votre table</h1>
+      <p>Le bureau assure toujours une des trois tables avec une initiation par mois. Les tables <b>Découverte</b> et <b>Adventure League</b>, ce sont les adhérents qui les font vivre&nbsp;! Un créneau libre vous tente&nbsp;? Connectez-vous et inscrivez-vous.</p>
+    </div>
+    <div class="tally" aria-live="polite">
+      <div class="num" id="tally-num">…</div>
+      <div class="lab" id="tally-lab">tables à pourvoir</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTROLS ============ -->
+<section class="controls">
+  <div class="wrap">
+    <div class="filter" role="group" aria-label="Filtrer les soirées">
+      <button id="f-all" aria-pressed="true" onclick="setFilter('all')">Toutes les soirées</button>
+      <button id="f-free" aria-pressed="false" onclick="setFilter('free')">Avec créneau libre</button>
+    </div>
+    <div class="legend">
+      <span><i class="key free"></i> Libre</span>
+      <span><i class="key taken"></i> Réservée</span>
+      <span><i class="key lock"></i> Bureau</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BOARD ============ -->
+<main class="plan-main">
+  <div class="wrap">
+    <div class="banner" id="banner"></div>
+    <div class="board" id="board">
+      <div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+    <div class="plan-note">
+      <span class="dot"></span>
+      Un système ou une date manquent&nbsp;? <a href="/#contact">Faites une demande au bureau</a>.
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<!-- Scripts partagés : config → content → site → planning -->
+<script src="assets/config.js"></script>
+<script src="assets/content.js"></script>
+<script src="assets/site.js"></script>
+<script src="assets/planning.js"></script>
 </body>
 </html>
