@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Échec critique · Page introuvable · ID20</title>
+<!-- GitHub Pages sert cette page pour TOUTE URL inexistante, y compris dans des
+     sous-dossiers : base href="/" garantit que les CSS, scripts et liens du menu
+     (injectés par site.js en chemins relatifs) se résolvent depuis la racine. -->
+<base href="/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#2c2350">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<header id="site-header"></header>
+
+<section class="section page">
+  <div class="wrap">
+    <div style="max-width:680px;margin:0 auto;text-align:center;padding:24px 0 20px">
+      <span class="eyebrow orange rule">Erreur 404</span>
+      <div style="margin-top:10px">
+        <canvas id="d20" width="96" height="96" aria-hidden="true" title="Relancer le dé"
+                style="width:300px;height:300px;max-width:72vw;image-rendering:pixelated;cursor:pointer"></canvas>
+      </div>
+      <h1>Échec critique&nbsp;!</h1>
+      <p class="lead" style="margin-top:14px">Vous lancez le d20 pour trouver cette page… et le dé tombe sur 404. Elle n'existe pas, a changé d'adresse, ou a été dévorée par un mimic.</p>
+      <p class="lead sm" style="margin-top:8px">Pas de panique&nbsp;: le maître du jeu vous accorde un nouveau jet.</p>
+      <div class="hero-actions" style="justify-content:center;margin-top:26px">
+        <a class="btn lg arrow" href="index.html">Retour à l'accueil</a>
+        <a class="btn lg outline" href="planning.html">Voir le planning</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/config.js"></script>
+<script src="assets/content.js"></script>
+<script src="assets/site.js"></script>
+
+<!-- ============ Dé 20 pixel-art : tombe sur 404 ============
+     Rendu logiciel sur canvas 96×96 (aucune dépendance).
+     Adapté du « D20 Loader » : palette ID20, atterrissage fixé sur 404,
+     pas de boucle infinie (le dé reste posé), clic = relancer. -->
+<script>
+(function(){
+  var canvas = document.getElementById('d20');
+  if (!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext('2d');
+
+  /* ---- palette ID20 (cf. assets/styles.css) ---- */
+  var OUTLINE = [25,18,49];                       /* --ra-navy-900  #191231 */
+  var FACES   = [[255,255,255],                   /* blanc          */
+                 [235,233,243],                   /* --ra-navy-100  */
+                 [208,203,226],                   /* --ra-navy-200  */
+                 [162,154,196]];                  /* --ra-navy-300  */
+  var ACCENT  = [192,143,18];                     /* --ra-orange-600 #c08f12, lisible sur face claire */
+  var RESULT  = '404';
+
+  /* ---- géométrie : icosaèdre + quaternions ---- */
+  var t = (1 + Math.sqrt(5)) / 2;
+  var verts = [[-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]]
+    .map(function(v){ var l = Math.hypot(v[0],v[1],v[2]); return [v[0]/l, v[1]/l, v[2]/l]; });
+  var faces = [[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
+
+  function qAxis(a, ang){ var s = Math.sin(ang/2); return [Math.cos(ang/2), a[0]*s, a[1]*s, a[2]*s]; }
+  function qMul(a, b){
+    return [a[0]*b[0]-a[1]*b[1]-a[2]*b[2]-a[3]*b[3],
+            a[0]*b[1]+a[1]*b[0]+a[2]*b[3]-a[3]*b[2],
+            a[0]*b[2]-a[1]*b[3]+a[2]*b[0]+a[3]*b[1],
+            a[0]*b[3]+a[1]*b[2]-a[2]*b[1]+a[3]*b[0]];
+  }
+  function qNorm(q){ var l = Math.hypot(q[0],q[1],q[2],q[3]); return q.map(function(v){return v/l;}); }
+  function qRot(q, v){
+    var w=q[0], x=q[1], y=q[2], z=q[3];
+    var ux = 2*(y*v[2]-z*v[1]), uy = 2*(z*v[0]-x*v[2]), uz = 2*(x*v[1]-y*v[0]);
+    return [v[0]+w*ux+y*uz-z*uy, v[1]+w*uy+z*ux-x*uz, v[2]+w*uz+x*uy-y*ux];
+  }
+  function qSlerp(a, b, k){
+    var d = a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3], bb = b;
+    if (d < 0){ d = -d; bb = b.map(function(v){return -v;}); }
+    if (d > 0.9995) return qNorm(a.map(function(v,i){ return v+(bb[i]-v)*k; }));
+    var th = Math.acos(Math.min(1,d));
+    var sA = Math.sin((1-k)*th)/Math.sin(th), sB = Math.sin(k*th)/Math.sin(th);
+    return qNorm(a.map(function(v,i){ return v*sA+bb[i]*sB; }));
+  }
+
+  /* orientation cible : face 0 vers la caméra, un sommet vers le haut */
+  var f0 = faces[0];
+  var c0 = (function(){ var a=[0,0,0]; [0,1,2].forEach(function(i){ a[0]+=verts[f0[i]][0]; a[1]+=verts[f0[i]][1]; a[2]+=verts[f0[i]][2]; });
+    var l = Math.hypot(a[0],a[1],a[2]); return [a[0]/l,a[1]/l,a[2]/l]; })();
+  var ax = [c0[1]*1-c0[2]*0, c0[2]*0-c0[0]*1, c0[0]*0-c0[1]*0];   /* c0 × (0,0,1) */
+  var s0 = Math.hypot(ax[0],ax[1],ax[2]);
+  var qA = [1,0,0,0];
+  if (s0 > 1e-6) qA = qAxis([ax[0]/s0,ax[1]/s0,ax[2]/s0], Math.acos(Math.max(-1,Math.min(1,c0[2]))));
+  var p0 = qRot(qA, verts[f0[0]]);
+  var qTarget = qMul(qAxis([0,0,1], Math.PI/2 - Math.atan2(p0[1], p0[0])), qA);
+
+  /* ---- glyphes 4×5 pour les chiffres ---- */
+  var G = {
+    '0':['1111','1001','1001','1001','1111'],
+    '4':['1001','1001','1111','0001','0001'],
+    '1':['0010','0110','0010','0010','0111'],'2':['1111','0001','1111','1000','1111'],
+    '3':['1111','0001','0111','0001','1111'],'5':['1111','1000','1111','0001','1111'],
+    '6':['1111','1000','1111','1001','1111'],'7':['1111','0001','0010','0100','0100'],
+    '8':['1111','1001','1111','1001','1111'],'9':['1111','1001','1111','0001','1111']
+  };
+
+  /* ---- rendu ---- */
+  var S = 96, cx = 48, cy = 48;
+  function draw(q, R, yOff, showNum){
+    var img = ctx.createImageData(S, S), d = img.data;
+    function put(x, y, c, a){
+      x |= 0; y |= 0;
+      if (x < 0 || y < 0 || x >= S || y >= S) return;
+      var i = (y*S + x)*4;
+      d[i] = c[0]; d[i+1] = c[1]; d[i+2] = c[2]; d[i+3] = (a === undefined) ? 255 : a;
+    }
+    /* ombre */
+    var shw = Math.max(4, 17 - Math.abs(yOff)*2.2);
+    for (var y = 90; y <= 91; y++)
+      for (var x = Math.round(cx - shw); x <= Math.round(cx + shw); x++)
+        put(x, y, OUTLINE, 42);
+
+    var pv = verts.map(function(v){ return qRot(q, v); });
+    var proj = pv.map(function(v){ return [cx + v[0]*R, cy - v[1]*R + yOff]; });
+    var L = [-0.4, 0.55, 0.73], front = [];
+
+    faces.forEach(function(f){
+      var a = pv[f[0]], b = pv[f[1]], c = pv[f[2]];
+      var u = [b[0]-a[0], b[1]-a[1], b[2]-a[2]], w = [c[0]-a[0], c[1]-a[1], c[2]-a[2]];
+      var n = [u[1]*w[2]-u[2]*w[1], u[2]*w[0]-u[0]*w[2], u[0]*w[1]-u[1]*w[0]];
+      var nl = Math.hypot(n[0],n[1],n[2]); n = [n[0]/nl, n[1]/nl, n[2]/nl];
+      if (n[2] <= 0.02) return;
+      front.push(f);
+      var sh = n[0]*L[0]+n[1]*L[1]+n[2]*L[2];
+      var tone = sh > 0.72 ? 0 : sh > 0.42 ? 1 : sh > 0.08 ? 2 : 3;
+      fillTri(put, proj[f[0]], proj[f[1]], proj[f[2]], FACES[tone]);
+    });
+    front.forEach(function(f){
+      line(put, proj[f[0]], proj[f[1]], OUTLINE);
+      line(put, proj[f[1]], proj[f[2]], OUTLINE);
+      line(put, proj[f[2]], proj[f[0]], OUTLINE);
+    });
+
+    if (showNum){
+      var digits = RESULT.split('');
+      var total = digits.length*8 + (digits.length-1)*2;
+      var ox = Math.round(48 - total/2);
+      digits.forEach(function(ch){
+        var glyph = G[ch];
+        for (var r = 0; r < 5; r++)
+          for (var cIx = 0; cIx < 4; cIx++)
+            if (glyph[r][cIx] === '1')
+              for (var sy = 0; sy < 2; sy++)
+                for (var sx = 0; sx < 2; sx++)
+                  put(ox + cIx*2 + sx, 45 + r*2 + sy, ACCENT);
+        ox += 10;
+      });
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  function fillTri(put, p0, p1, p2, col){
+    var a = p0, b = p1, c = p2;
+    var area = (b[0]-a[0])*(c[1]-a[1]) - (b[1]-a[1])*(c[0]-a[0]);
+    if (area < 0){ var tmp = b; b = c; c = tmp; }
+    var minX = Math.max(0, Math.floor(Math.min(a[0],b[0],c[0])));
+    var maxX = Math.min(95, Math.ceil(Math.max(a[0],b[0],c[0])));
+    var minY = Math.max(0, Math.floor(Math.min(a[1],b[1],c[1])));
+    var maxY = Math.min(95, Math.ceil(Math.max(a[1],b[1],c[1])));
+    function edge(p, q, x, y){ return (q[0]-p[0])*(y-p[1]) - (q[1]-p[1])*(x-p[0]); }
+    for (var y = minY; y <= maxY; y++)
+      for (var x = minX; x <= maxX; x++){
+        var px = x + 0.5, py = y + 0.5;
+        if (edge(a,b,px,py) >= 0 && edge(b,c,px,py) >= 0 && edge(c,a,px,py) >= 0)
+          put(x, y, col);
+      }
+  }
+
+  function line(put, p0, p1, col){
+    var x0 = Math.round(p0[0]), y0 = Math.round(p0[1]);
+    var x1 = Math.round(p1[0]), y1 = Math.round(p1[1]);
+    var dx = Math.abs(x1-x0), dy = -Math.abs(y1-y0);
+    var sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+    var err = dx + dy;
+    for (;;){
+      put(x0, y0, col);
+      if (x0 === x1 && y0 === y1) break;
+      var e2 = 2*err;
+      if (e2 >= dy){ err += dy; x0 += sx; }
+      if (e2 <= dx){ err += dx; y0 += sy; }
+    }
+  }
+
+  /* ---- animation : culbute → pose → reste posé sur 404 ---- */
+  var T_TUMBLE = 2.2, T_SETTLE = 1.0, R_LAND = 46;
+  var q, R, phase, phaseStart, lastT, q0, raf;
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function start(){
+    q = qAxis([0.3,0.8,0.5], 0.7);
+    R = 26; phase = 'tumble';
+    lastT = performance.now(); phaseStart = lastT; q0 = null;
+    if (reduced){ phase = 'landed'; draw(qTarget, R_LAND, 0, true); return; }
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(tick);
+  }
+
+  function tick(now){
+    var dt = Math.min(0.05, (now - lastT)/1000);
+    lastT = now;
+    var e = (now - phaseStart)/1000;
+    var yOff = 0, showNum = false;
+
+    if (phase === 'tumble'){
+      var tt = now/1000;
+      var a = [Math.sin(tt*0.7), Math.cos(tt*0.9)*0.8+0.4, Math.sin(tt*0.5)*0.6];
+      var l = Math.hypot(a[0],a[1],a[2]);
+      q = qNorm(qMul(qAxis([a[0]/l,a[1]/l,a[2]/l], 4.4*dt), q));
+      yOff = Math.sin(tt*3)*2.5;
+      R += (30 - R) * Math.min(1, dt*6);
+      if (e > T_TUMBLE){ phase = 'settle'; q0 = q; phaseStart = now; }
+    } else if (phase === 'settle'){
+      var k = Math.min(1, e / T_SETTLE);
+      var ke = 1 - Math.pow(1-k, 3);
+      q = qSlerp(q0, qTarget, ke);
+      R = 30 + (R_LAND-30)*ke;
+      yOff = Math.sin(now/1000*3)*2.5*(1-ke);
+      showNum = ke > 0.92;
+      if (k >= 1){ phase = 'landed'; }
+    } else { /* landed : le dé reste posé */
+      draw(qTarget, R_LAND, 0, true);
+      return;
+    }
+    draw(q, R, yOff, showNum);
+    raf = requestAnimationFrame(tick);
+  }
+
+  canvas.addEventListener('click', start);   /* relancer : ça retombera sur 404, forcément */
+  start();
+})();
+</script>
+</body>
+</html>
