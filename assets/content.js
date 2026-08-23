@@ -46,7 +46,7 @@ window.CONTENT = {
   // Contact (bas de l'accueil)
   contact: {
     intro:      "Le plus simple est de passer nous voir un mercredi soir, ou de nous écrire sur le Discord de l'association.",
-    discordUrl: "https://discord.gg/HErJSsQvbb",   // ← colle le lien d'invitation Discord (ex. https://discord.gg/abcdef). Vide = bouton inactif.
+    discordUrl: "https://discord.gg/gqVeMtg38F",   // ← colle le lien d'invitation Discord (ex. https://discord.gg/abcdef). Vide = bouton inactif.
     email:      "id20.asso@outlook.com",   // ← e-mail de contact (ex. contact@id20.fr). Vide = lien inactif.
   },
 
