@@ -201,6 +201,20 @@ img{max-width:100%}
 
 .plan-main{background:var(--ra-cream)}
 .plan-main .wrap{padding:30px 28px 70px}
+/* bannière « réservé aux MJ » (haut de la page planning) */
+.mj-strip{background:var(--ra-cream); padding:22px 0 2px}
+.mj-strip .wrap{padding:0 28px}
+.mj-banner{display:flex; align-items:center; gap:18px; padding:20px 26px; border-radius:16px;
+  background:linear-gradient(135deg,#d6342b,#a81d16); color:#fff;
+  box-shadow:0 12px 28px rgba(168,29,22,.28)}
+.mj-ico{flex:none; width:46px; height:46px; border-radius:50%; display:grid; place-items:center; background:rgba(255,255,255,.16)}
+.mj-ico svg{width:26px; height:26px}
+.mj-txt{display:flex; flex-direction:column; gap:3px}
+.mj-txt b{font-family:var(--font-display); font-weight:800; font-size:22px; letter-spacing:-.01em; line-height:1.1}
+.mj-txt span{font-size:14.5px; line-height:1.5; color:rgba(255,255,255,.92)}
+.mj-txt a{color:#fff; font-weight:700; text-decoration:underline; text-underline-offset:2px}
+.mj-txt a:hover{color:var(--ra-orange-200)}
+@media(max-width:560px){ .mj-banner{align-items:flex-start; gap:14px; padding:18px} .mj-txt b{font-size:19px} }
 .board{display:flex; flex-direction:column; gap:18px}
 .skeleton{height:150px; border-radius:16px; background:linear-gradient(90deg,var(--surface-card),var(--ra-cream-deep),var(--surface-card)); background-size:200% 100%; animation:ra-sk 1.3s linear infinite; border:1px solid var(--border-subtle)}
 @keyframes ra-sk{to{background-position:-200% 0}}
