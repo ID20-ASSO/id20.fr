@@ -25,7 +25,7 @@ window.CONTENT = {
       kicker: "Boutique de jeux",
       nom:    "Ludotrotter",
       desc:   "2 soirées par mois et des séances spéciales. Situé place Lafayette, accessible en tram.",
-      url:    "https://ludotrotter.fr/tournois/",   // ← site de la boutique. Vide = pas de bouton affiché.
+      url:    "https://www.billetweb.fr/planning-ludotrotter-angers",   // ← site de la boutique. Vide = pas de bouton affiché.
     },
     cartepinte: {
       kicker: "Bar à jeux",
